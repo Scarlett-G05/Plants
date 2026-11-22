@@ -1,31 +1,14 @@
-# S2bStarterExpress
+Plant Shelf
 
-The Express API for the Sketch Gallery. It is the only program that talks to MongoDB, through Mongoose. The SvelteKit app (`S2bStarterSveltekit`) talks to this.
+Explaination:
+Plant Shelf is a web application for swapping plants. The basic idea is an organiser hosts the website and enters in people's plants to its database. Then, during a plant swap meeting they exchange plants. On plantswap this is represented by "swapped" status. Plants can be added, deleted, swapped and un-swapped. Each plant has a name, a spcies and a light level.
 
-## Run it
+How to run:
+Start the express server- open terminal. Enter "cd S2bStarterExpress" then enter "npm start".
+Start the svelte app- open terminal. Enter "cd S2bStarterSveltekit" then enter "npm run dev"
+The terminal will dsplay the ports you need to search to open. local host 3001 for express server and local host 5173 for svelte app.
 
-```
-npm install
-cp .env.example .env     # then edit .env: your connection string and database name
-npm run dev
-```
-
-It listens on http://localhost:3001.
-
-## Where things are
-
-| File | What it does |
-|---|---|
-| `index.js` | Connects to MongoDB (using `MONGODB_URI` from `.env`), then the four routes. Each route checks the request, calls one function from `lib/sketchData.js`, and sends a status code. |
-| `lib/sketchData.js` | The database work: `getAll`, `create`, `update`, `remove`. |
-| `models/Sketch.js` | The schema (the shape of a sketch) and the model. The model's name decides the collection name. |
-| `.env` | Secret settings. Not committed. `.env.example` lists the names. |
-
-## Routes
-
-| Method | Path | Success |
-|---|---|---|
-| GET | `/api/sketches` | 200 and the list |
-| POST | `/api/sketches` | 201 and the new sketch |
-| PATCH | `/api/sketches/:id` | 200 and the updated sketch |
-| DELETE | `/api/sketches/:id` | 204 |
+Process:
+a. user enters name, species and selects light level from drop down menu
+b. the svelte plant API sends the form data to the express server. This is done via a post request.
+c. 

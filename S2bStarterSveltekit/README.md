@@ -19,7 +19,7 @@ Open http://localhost:5173
 | File | What it does |
 |---|---|
 | `src/routes/gallery/+page.server.js` | `load()`: gets the list of sketches from Express before the page is sent. |
-| `src/routes/gallery/+page.svelte` | The page: the list, the add form, the star and ✕ buttons. Each button does a `fetch()` to this app's own `/api/sketches` routes. |
+| `src/routes/gallery/+page.svelte` | The page: the list, the add form, the star and ✕ buttons. Each button does a `fetch()` to this app's own `` routes. |
 | `src/routes/api/sketches/+server.js` | Add a sketch (POST). Forwards to Express. |
 | `src/routes/api/sketches/[id]/+server.js` | Change (PATCH) or delete (DELETE) one sketch. Forwards to Express. |
 | `src/lib/server/sketchApi.js` | The only file that calls Express. |

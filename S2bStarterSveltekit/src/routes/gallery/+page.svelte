@@ -1,21 +1,22 @@
+
 <script>
 	// `data` holds what load() in +page.server.js returned.
 	let { data } = $props();
 
 	// $state makes these reactive: the page updates when they change.
-	let title = $state('');
-	let artist = $state('');
-	let colorTag = $state('#5da9ff');
+	let name = $state('');
+	let species = $state('');
+	let light = $state('Indirect light');
 	let submitting = $state(false);
 	let submitError = $state('');
 	let listError = $state('');
 
 	// Our own copy of the list, seeded from load()'s data, so the page can
-	// change straight after an add, star or delete without a reload.
-	let sketches = $state(data.sketches);
+	// change straight after an add, status change or delete without a reload.
+	let plants = $state(data.plants);
 
-	// ADD — the form. A plain fetch() to OUR OWN /api/sketches route
-	// (src/routes/api/sketches/+server.js), never straight to Express.
+	// ADD — the form. A plain fetch() to OUR OWN /api/plants route
+	// (src/routes/api/plants/+server.js), never straight to Express.
 	// SvelteKit forwards it to Express.
 	async function handleSubmit(event) {
 		event.preventDefault(); // stop the browser reloading the page
@@ -24,65 +25,65 @@
 
 		try {
 			// await means: pause here until the server answers, then carry on.
-			const res = await fetch('/api/sketches', {
+			const res = await fetch('/api/plants', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ title, artist, colorTag })
+				body: JSON.stringify({ name, species, light, swapped: false })
 			});
 
 			if (!res.ok) {
 				throw new Error(`Request failed with status ${res.status}`);
 			}
 
-			// The API sends back the saved sketch (with its id). Add it to our list.
-			const newSketch = await res.json();
-			sketches.push(newSketch);
+			// The API sends back the saved plant (with its id). Add it to our list.
+			const newPlant = await res.json();
+			plants.push(newPlant);
 
-			title = '';
-			artist = '';
-			colorTag = '#5da9ff';
+			name = '';
+			species = '';
+			light = 'Indirect light';
 		} catch (err) {
-			submitError = 'Could not add that sketch. Is the API running?';
+			submitError = 'Could not add that plant. Is the API running?';
 			console.error(err);
 		} finally {
 			submitting = false;
 		}
 	}
 
-	// UPDATE — the favourite star. A PATCH to OUR OWN /api/sketches/<id>
-	// route (src/routes/api/sketches/[id]/+server.js), sending only the
+	// UPDATE — the swapped status. A PATCH to OUR OWN /api/plants/<id>
+	// route (src/routes/api/plants/[id]/+server.js), sending only the
 	// field that changes.
-	async function toggleFavourite(sketch) {
+	async function toggleSwapped(plant) {
 		listError = '';
 
 		try {
-			const res = await fetch(`/api/sketches/${sketch.id}`, {
+			const res = await fetch(`/api/plants/${plant.id}`, {
 				method: 'PATCH',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ favourite: !sketch.favourite })
+				body: JSON.stringify({ swapped: !plant.swapped })
 			});
 
 			if (!res.ok) {
 				throw new Error(`Request failed with status ${res.status}`);
 			}
 
-			// The API sends back the updated sketch. Copy the new value onto
-			// the sketch in our list and the star changes.
+			// The API sends back the updated plant. Copy the new value onto
+			// the plant in our list and the status changes.
 			const updated = await res.json();
-			sketch.favourite = updated.favourite;
+			plant.swapped = updated.swapped;
 		} catch (err) {
-			listError = 'Could not update that sketch. Is the API running?';
+			listError = 'Could not update that plant. Is the API running?';
 			console.error(err);
 		}
 	}
 
 	// DELETE — the ✕ button. A successful delete answers 204 (No Content),
 	// so there is no body to read.
-	async function deleteSketch(sketch) {
+	async function deletePlant(plant) {
 		listError = '';
 
 		try {
-			const res = await fetch(`/api/sketches/${sketch.id}`, {
+			const res = await fetch(`/api/plants/${plant.id}`, {
 				method: 'DELETE'
 			});
 
@@ -90,44 +91,45 @@
 				throw new Error(`Request failed with status ${res.status}`);
 			}
 
-			// Rebuild our list without that sketch: filter keeps every sketch
+			// Rebuild our list without that plant: filter keeps every plant
 			// whose id is NOT the one we deleted.
-			sketches = sketches.filter((s) => s.id !== sketch.id);
+			plants = plants.filter((p) => p.id !== plant.id);
 		} catch (err) {
-			listError = 'Could not delete that sketch. Is the API running?';
+			listError = 'Could not delete that plant. Is the API running?';
 			console.error(err);
 		}
 	}
 </script>
 
 <main>
-	<h1>Sketch Gallery</h1>
+	<h1>Plant Swap Shelf</h1>
 	<p><a href="/">← Home</a></p>
 
 	{#if listError}
 		<p class="error">{listError}</p>
 	{/if}
 
-	<ul class="sketch-list">
-		{#each sketches as sketch (sketch.id)}
-			<li class="sketch-card" style="border-left-color: {sketch.colorTag}">
+	<ul class="plant-list">
+		{#each plants as plant (plant.id)}
+			<li class="plant-card">
 				<div>
-					<strong>{sketch.title}</strong>
-					<span class="artist">by {sketch.artist}</span>
+					<strong>{plant.name}</strong>
+					<span class="species">{plant.species}</span>
+					<span class="light">Light: {plant.light}</span>
 				</div>
 				<div class="buttons">
 					<button
 						class="icon-button"
-						class:is-favourite={sketch.favourite}
-						onclick={() => toggleFavourite(sketch)}
-						title="Toggle favourite"
+						class:is-swapped={plant.swapped}
+						onclick={() => toggleSwapped(plant)}
+						title="Toggle swapped status"
 					>
-						{sketch.favourite ? '★' : '☆'}
+						{plant.swapped ? 'Swapped' : 'Available'}
 					</button>
 					<button
 						class="icon-button delete"
-						onclick={() => deleteSketch(sketch)}
-						title="Delete this sketch"
+						onclick={() => deletePlant(plant)}
+						title="Delete this plant"
 					>
 						✕
 					</button>
@@ -136,28 +138,34 @@
 		{/each}
 	</ul>
 
-	<h2>Add a sketch</h2>
+	<h2>Add a plant</h2>
 	<form onsubmit={handleSubmit}>
 		<label>
-			Title
-			<input type="text" bind:value={title} required />
+			Name
+			<input type="text" bind:value={name} required />
 		</label>
 		<label>
-			Artist
-			<input type="text" bind:value={artist} required />
+			Species
+			<input type="text" bind:value={species} required />
 		</label>
 		<label>
-			Colour
-			<input type="color" bind:value={colorTag} />
+			Light requirement
+			<select bind:value={light}>
+				<option>Low light</option>
+				<option>Indirect light</option>
+				<option>Bright indirect light</option>
+				<option>Direct sunlight</option>
+			</select>
 		</label>
 		<button type="submit" disabled={submitting}>
-			{submitting ? 'Adding…' : 'Add sketch'}
+			{submitting ? 'Adding…' : 'Add plant'}
 		</button>
 		{#if submitError}
 			<p class="error">{submitError}</p>
 		{/if}
 	</form>
 </main>
+
 
 <style>
 	main {

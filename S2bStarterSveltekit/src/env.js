@@ -13,5 +13,5 @@
 import { defineEnvVars } from '@sveltejs/kit/env';
 
 export const variables = defineEnvVars({
-	SKETCH_API_URL: {}
+	PLANT_API_URL: {}
 });

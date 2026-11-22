@@ -13,12 +13,12 @@
 
 import mongoose from 'mongoose';
 
-const sketchSchema = new mongoose.Schema(
+const plantSchema = new mongoose.Schema(
 	{
-		title: { type: String, required: true },
-		artist: { type: String, required: true },
-		colorTag: { type: String, required: true },
-		favourite: { type: Boolean, default: false }
+		name: { type: String, required: true },
+		species: { type: String, required: true },
+		light: { type: String, required: true },
+		swapped: { type: Boolean, required: true, default: false }
 	},
 	{
 		// MongoDB stores each document's id as _id. This option makes the JSON
@@ -28,6 +28,6 @@ const sketchSchema = new mongoose.Schema(
 	}
 );
 
-const Sketch = mongoose.model('Sketch', sketchSchema);
+const Plant = mongoose.model('Plant', plantSchema);
 
-export default Sketch;
+export default Plant;
