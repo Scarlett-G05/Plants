@@ -11,4 +11,6 @@ The terminal will dsplay the ports you need to search to open. local host 3001 f
 Process:
 a. user enters name, species and selects light level from drop down menu
 b. the svelte plant API sends the form data to the express server. This is done via a post request.
-c. 
+c. express saves the plant data
+d. mongoose stores the plant on MongoDB
+e. the new plant is displayed on the shelf
